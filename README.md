@@ -11,7 +11,9 @@ This is a simple Python program that:
 You need Python installed (or use an app like Pydroid 3).
 
 Copy the code in 
+
 grade_calculator .py.
+
 Paste and run it using:
      python on PC( python grade _calculator .py)
     Or pydroid 3 app on Android
