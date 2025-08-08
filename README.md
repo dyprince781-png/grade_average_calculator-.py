@@ -14,7 +14,7 @@ A simple Python program that calculates the average grade of a student based on 
 ## 🖥️ How to Run
 1. Install Python on your device ([Download here](https://www.python.org/downloads/)).
 2. Download this project’s file:
-3.
+
 4. grade_average_calculator.py
    
 5. Open a terminal (or command
