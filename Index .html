@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Average Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        #grades-container input {
+            width: 80px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📊 Grade Average Calculator</h1>
+    <p>Enter the number of subjects:</p>
+    <input type="number" id="numSubjects" min="1" placeholder="e.g. 5">
+    <button onclick="createInputs()">Next</button>
+
+    <div id="grades-container"></div>
+    <div class="result" id="result"></div>
+
+    <script>
+        function createInputs() {
+            let numSubjects = document.getElementById("numSubjects").value;
+            let container = document.getElementById("grades-container");
+            container.innerHTML = "";
+
+            if (numSubjects < 1) {
+                alert("Please enter a valid number of subjects.");
+                return;
+            }
+
+            for (let i = 1; i <= numSubjects; i++) {
+                container.innerHTML += `<p>Grade for subject ${i}: <input type="number" id="grade${i}" step="0.01"></p>`;
+            }
+            container.innerHTML += `<button onclick="calculateAverage(${numSubjects})">Calculate</button>`;
+        }
+
+        function calculateAverage(numSubjects) {
+            let total = 0;
+            for (let i = 1; i <= numSubjects; i++) {
+                let grade = parseFloat(document.getElementById(`grade${i}`).value);
+                if (isNaN(grade)) {
+                    alert(`Please enter a valid grade for subject ${i}.`);
+                    return;
+                }
+                total += grade;
+            }
+
+            let average = total / numSubjects;
+            let feedback = "";
+
+            if (average >= 70) {
+                feedback = "🌟 Amazing result!";
+            } else if (average >= 60) {
+                feedback = "👍 Good job.";
+            } else if (average >= 50) {
+                feedback = "✅ You passed.";
+            } else {
+                feedback = "📉 You need to improve.";
+            }
+
+            document.getElementById("result").innerHTML = `Your average grade is: ${average.toFixed(2)}<br>${feedback}`;
+        }
+    </script>
+
+</body>
+  </html>
