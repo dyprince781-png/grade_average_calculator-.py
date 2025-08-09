@@ -3,67 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade Average Calculator</title>
+    <title>Grade Average Calculator - Premium</title>
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: Arial, sans-serif;
             text-align: center;
-            background: linear-gradient(135deg, #0d47a1, #ffd700);
-            color: #fff;
+            background-color: #1e1e1e;
+            color: white;
             padding: 20px;
         }
-        header img {
-            width: 100px;
-            margin-bottom: 10px;
-        }
         h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
+            color: gold;
         }
         input, button {
             padding: 10px;
             margin: 5px;
             font-size: 16px;
-            border-radius: 8px;
+            border-radius: 5px;
             border: none;
         }
         input {
-            width: 120px;
+            width: 80px;
         }
         button {
-            background-color: #ffd700;
-            color: #0d47a1;
-            font-weight: bold;
+            background-color: gold;
+            color: black;
             cursor: pointer;
+            font-weight: bold;
         }
         button:hover {
-            background-color: #e6c200;
-        }
-        #grades-container {
-            margin-top: 20px;
+            background-color: #d4af37;
         }
         .result {
             margin-top: 20px;
             font-size: 18px;
             font-weight: bold;
+            color: #00ffcc;
         }
-        .subscribe-section {
-            margin-top: 30px;
-            background-color: rgba(255, 255, 255, 0.15);
-            padding: 15px;
+        .premium-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 2px solid gold;
             border-radius: 10px;
-        }
-        .subscribe-section input {
-            width: 200px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <img src="logo.png" alt="App Logo">
-        <h1>📊 Grade Average Calculator</h1>
-    </header>
 
+    <h1>📊 Grade Average Calculator - Premium</h1>
     <p>Enter the number of subjects:</p>
     <input type="number" id="numSubjects" min="1" placeholder="e.g. 5">
     <button onclick="createInputs()">Next</button>
@@ -71,12 +58,11 @@
     <div id="grades-container"></div>
     <div class="result" id="result"></div>
 
-    <div class="subscribe-section">
-        <h2>🔔 Subscribe for Premium Features</h2>
-        <p>Get notified about updates and new features.</p>
-        <input type="email" id="email" placeholder="Enter your email">
-        <button onclick="subscribe()">Subscribe</button>
-        <p id="subMsg"></p>
+    <!-- Premium Subscription -->
+    <div class="premium-section">
+        <h2>💎 Upgrade to Premium</h2>
+        <p>One-time payment to unlock bonus features & ad-free experience.</p>
+        <button id="payButton">Subscribe - ₦1,000</button>
     </div>
 
     <script>
@@ -109,35 +95,44 @@
 
             let average = total / numSubjects;
             let feedback = "";
-            let gradeLetter = "";
+            let letterGrade = "";
 
             if (average >= 70) {
                 feedback = "🌟 Amazing result!";
-                gradeLetter = "A";
+                letterGrade = "A";
             } else if (average >= 60) {
                 feedback = "👍 Good job.";
-                gradeLetter = "B";
+                letterGrade = "B";
             } else if (average >= 50) {
                 feedback = "✅ You passed.";
-                gradeLetter = "C";
+                letterGrade = "C";
             } else {
                 feedback = "📉 You need to improve.";
-                gradeLetter = "D";
+                letterGrade = "D";
             }
 
-            document.getElementById("result").innerHTML = 
-                `Your average grade is: ${average.toFixed(2)}<br>Grade: ${gradeLetter}<br>${feedback}`;
+            document.getElementById("result").innerHTML = `Your average grade is: ${average.toFixed(2)}<br>Grade: ${letterGrade}<br>${feedback}`;
         }
 
-        function subscribe() {
-            let email = document.getElementById("email").value;
-            if (email === "" || !email.includes("@")) {
-                alert("Please enter a valid email address.");
-                return;
-            }
-            document.getElementById("subMsg").innerHTML = "✅ Thank you for subscribing!";
-            document.getElementById("email").value = "";
-        }
+        // Paystack payment
+        document.getElementById("payButton").addEventListener("click", function() {
+            let handler = PaystackPop.setup({
+                key: 'pk_test_ec3a44821177591dfadfb3f06efbf6ce823d5500',
+                email: 'dyprince781@gmail.com',
+                amount: 100000, // ₦1,000 in kobo
+                currency: 'NGN',
+                ref: ''+Math.floor((Math.random() * 1000000000) + 1),
+                callback: function(response){
+                    alert('Payment successful! Ref: ' + response.reference);
+                },
+                onClose: function(){
+                    alert('Transaction was not completed.');
+                }
+            });
+            handler.openIframe();
+        });
     </script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+
 </body>
 </html>
