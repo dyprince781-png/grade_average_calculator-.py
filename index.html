@@ -48,8 +48,12 @@
             margin-top: 20px;
             font-size: 18px;
             font-weight: bold;
-            color: #1b5e20;
         }
+        .grade-A { color: green; }
+        .grade-B { color: blue; }
+        .grade-C { color: goldenrod; }
+        .grade-D { color: orange; }
+        .grade-F { color: red; }
         footer {
             margin-top: 30px;
             font-size: 14px;
@@ -105,20 +109,41 @@
             }
 
             let average = total / numSubjects;
+            let gradeLetter = "";
             let feedback = "";
+            let gradeClass = "";
 
+            // Determine letter grade and color
             if (average >= 70) {
+                gradeLetter = "A";
                 feedback = "🌟 Amazing result!";
+                gradeClass = "grade-A";
             } else if (average >= 60) {
+                gradeLetter = "B";
                 feedback = "👍 Good job.";
+                gradeClass = "grade-B";
             } else if (average >= 50) {
+                gradeLetter = "C";
                 feedback = "✅ You passed.";
+                gradeClass = "grade-C";
+            } else if (average >= 40) {
+                gradeLetter = "D";
+                feedback = "⚠ Needs improvement.";
+                gradeClass = "grade-D";
             } else {
+                gradeLetter = "F";
                 feedback = "📉 You need to improve.";
+                gradeClass = "grade-F";
             }
 
             let subjectDetails = subjects.map(s => `${s.name}: ${s.score}`).join("<br>");
-            document.getElementById("result").innerHTML = `${subjectDetails}<br><br>Your average grade is: ${average.toFixed(2)}<br>${feedback}`;
+            document.getElementById("result").innerHTML = `
+                ${subjectDetails}
+                <br><br>
+                <strong>Average Score:</strong> ${average.toFixed(2)}<br>
+                <strong>Grade:</strong> <span class="${gradeClass}">${gradeLetter}</span><br>
+                <strong>Feedback:</strong> ${feedback}
+            `;
         }
 
         function resetCalculator() {
