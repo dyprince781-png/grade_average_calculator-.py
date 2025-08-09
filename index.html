@@ -1,43 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Average Calculator</title>
+    
+    <!-- Social Media Preview -->
+    <meta name="description" content="Calculate your grade average instantly with this free online Grade Average Calculator.">
+    <meta property="og:title" content="Grade Average Calculator">
+    <meta property="og:description" content="Calculate your grade average instantly with this free online tool.">
+    <meta property="og:image" content="https://via.placeholder.com/600x400.png?text=Grade+Calculator">
+    <meta property="og:type" content="website">
+    
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
             padding: 20px;
+            margin: 0;
         }
         h1 {
-            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.1em;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            margin: 20px auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         input, button {
             padding: 10px;
             margin: 5px;
             font-size: 16px;
+            border-radius: 8px;
+            border: none;
+        }
+        input {
+            width: 80%;
+            max-width: 200px;
+        }
+        button {
+            background: #ff9800;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #e68900;
+        }
+        #grades-container {
+            margin-top: 15px;
         }
         #grades-container input {
-            width: 80px;
+            width: 120px;
         }
         .result {
             margin-top: 20px;
-            font-size: 18px;
+            font-size: 1.2em;
             font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
 
     <h1>📊 Grade Average Calculator</h1>
-    <p>Enter the number of subjects:</p>
-    <input type="number" id="numSubjects" min="1" placeholder="e.g. 5">
-    <button onclick="createInputs()">Next</button>
+    <p>Calculate your average score, grade, and feedback instantly.</p>
 
-    <div id="grades-container"></div>
-    <div class="result" id="result"></div>
+    <div class="card">
+        <label>Enter the number of subjects:</label><br>
+        <input type="number" id="numSubjects" min="1" placeholder="e.g. 5">
+        <button onclick="createInputs()">Next</button>
+
+        <div id="grades-container"></div>
+        <div class="result" id="result"></div>
+        <button id="resetBtn" style="display:none;" onclick="resetCalculator()">Reset</button>
+    </div>
+
+    <footer>
+        Created by <strong>Your Name</strong> • Powered by GitHub Pages
+    </footer>
 
     <script>
         function createInputs() {
@@ -51,38 +109,72 @@
             }
 
             for (let i = 1; i <= numSubjects; i++) {
-                container.innerHTML += `<p>Grade for subject ${i}: <input type="number" id="grade${i}" step="0.01"></p>`;
+                container.innerHTML += `
+                    <p>
+                        Subject ${i} name: <input type="text" id="name${i}" placeholder="Subject ${i}">
+                        Score: <input type="number" id="grade${i}" step="0.01" min="0" max="100">
+                    </p>`;
             }
             container.innerHTML += `<button onclick="calculateAverage(${numSubjects})">Calculate</button>`;
         }
 
         function calculateAverage(numSubjects) {
             let total = 0;
+            let subjects = [];
             for (let i = 1; i <= numSubjects; i++) {
+                let name = document.getElementById(`name${i}`).value || `Subject ${i}`;
                 let grade = parseFloat(document.getElementById(`grade${i}`).value);
                 if (isNaN(grade)) {
-                    alert(`Please enter a valid grade for subject ${i}.`);
+                    alert(`Please enter a valid score for ${name}.`);
                     return;
                 }
                 total += grade;
+                subjects.push({ name, grade });
             }
 
             let average = total / numSubjects;
+            let gradeLetter = "";
             let feedback = "";
 
             if (average >= 70) {
-                feedback = "🌟 Amazing result!";
+                gradeLetter = "A";
+                feedback = "🌟 Excellent work!";
             } else if (average >= 60) {
+                gradeLetter = "B";
                 feedback = "👍 Good job.";
             } else if (average >= 50) {
+                gradeLetter = "C";
                 feedback = "✅ You passed.";
+            } else if (average >= 45) {
+                gradeLetter = "D";
+                feedback = "⚠ Needs improvement.";
+            } else if (average >= 40) {
+                gradeLetter = "E";
+                feedback = "⚠ Barely passed.";
             } else {
-                feedback = "📉 You need to improve.";
+                gradeLetter = "F";
+                feedback = "📉 You need to work harder.";
             }
 
-            document.getElementById("result").innerHTML = `Your average grade is: ${average.toFixed(2)}<br>${feedback}`;
+            let resultHTML = `<strong>Average:</strong> ${average.toFixed(2)}<br>
+                              <strong>Grade:</strong> ${gradeLetter}<br>
+                              ${feedback}<br><br>`;
+
+            subjects.forEach(sub => {
+                resultHTML += `${sub.name}: ${sub.grade}<br>`;
+            });
+
+            document.getElementById("result").innerHTML = resultHTML;
+            document.getElementById("resetBtn").style.display = "inline-block";
+        }
+
+        function resetCalculator() {
+            document.getElementById("numSubjects").value = "";
+            document.getElementById("grades-container").innerHTML = "";
+            document.getElementById("result").innerHTML = "";
+            document.getElementById("resetBtn").style.display = "none";
         }
     </script>
 
 </body>
-  </html>
+</html>
