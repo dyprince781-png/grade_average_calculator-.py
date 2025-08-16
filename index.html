@@ -1,138 +1,205 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade Average Calculator - Premium</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #1e1e1e;
-            color: white;
-            padding: 20px;
-        }
-        h1 {
-            color: gold;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: none;
-        }
-        input {
-            width: 80px;
-        }
-        button {
-            background-color: gold;
-            color: black;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover {
-            background-color: #d4af37;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #00ffcc;
-        }
-        .premium-section {
-            margin-top: 40px;
-            padding: 20px;
-            border: 2px solid gold;
-            border-radius: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade Average Calculator</title>
+
+  <!-- jsPDF and AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 { color: #333; }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    input[type="text"], input[type="number"] {
+      width: 80%;
+      max-width: 300px;
+    }
+    button {
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+    }
+    button:hover { background: #45a049; }
+    #resetBtn { background: #f44336; }
+    #resetBtn:hover { background: #d32f2f; }
+    #downloadBtn { background: #2196F3; }
+    #downloadBtn:hover { background: #1976D2; }
+    .subject-row { margin: 10px 0; }
+    #subjects { margin-top: 15px; }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      white-space: pre-line;
+      text-align: left;
+      display: inline-block;
+    }
+  </style>
 </head>
 <body>
+  <h1>Grade Average Calculator</h1>
 
-    <h1>📊 Grade Average Calculator - Premium</h1>
-    <p>Enter the number of subjects:</p>
-    <input type="number" id="numSubjects" min="1" placeholder="e.g. 5">
-    <button onclick="createInputs()">Next</button>
+  <input type="number" id="numSubjects" placeholder="Enter number of subjects">
+  <br>
+  <button onclick="generateInputs()">Generate Inputs</button>
 
-    <div id="grades-container"></div>
-    <div class="result" id="result"></div>
+  <div id="subjects"></div>
+  <button onclick="calculateAverage()">Calculate Average</button>
+  <button id="resetBtn" onclick="resetAll()">Reset</button>
+  <button id="downloadBtn" onclick="downloadPDF()">Download PDF Report</button>
 
-    <!-- Premium Subscription -->
-    <div class="premium-section">
-        <h2>💎 Upgrade to Premium</h2>
-        <p>One-time payment to unlock bonus features & ad-free experience.</p>
-        <button id="payButton">Subscribe - ₦1,000</button>
-    </div>
+  <div id="result"></div>
 
-    <script>
-        function createInputs() {
-            let numSubjects = document.getElementById("numSubjects").value;
-            let container = document.getElementById("grades-container");
-            container.innerHTML = "";
+  <script>
+    let lastSubjects = [];
+    let lastAverage = 0;
+    let lastGrade = "";
 
-            if (numSubjects < 1) {
-                alert("Please enter a valid number of subjects.");
-                return;
-            }
+    // Restore saved data when page loads
+    window.onload = function() {
+      let savedData = JSON.parse(localStorage.getItem("gradeData"));
+      if (savedData) {
+        document.getElementById("numSubjects").value = savedData.numSubjects;
+        generateInputs();
+        for (let i = 1; i <= savedData.numSubjects; i++) {
+          document.getElementById(`sub${i}`).value = savedData.subjects[i-1].name;
+          document.getElementById(`score${i}`).value = savedData.subjects[i-1].score;
+        }
+        document.getElementById("result").innerText = savedData.result;
+        lastSubjects = savedData.subjects;
+        lastAverage = savedData.average;
+        lastGrade = savedData.grade;
+      }
+    }
 
-            for (let i = 1; i <= numSubjects; i++) {
-                container.innerHTML += `<p>Grade for subject ${i}: <input type="number" id="grade${i}" step="0.01"></p>`;
-            }
-            container.innerHTML += `<button onclick="calculateAverage(${numSubjects})">Calculate</button>`;
+    function generateInputs() {
+      let num = parseInt(document.getElementById("numSubjects").value);
+      let container = document.getElementById("subjects");
+      container.innerHTML = "";
+
+      if (isNaN(num) || num <= 0) {
+        container.innerHTML = "<p>⚠️ Please enter a valid number of subjects!</p>";
+        return;
+      }
+
+      for (let i = 1; i <= num; i++) {
+        container.innerHTML += `
+          <div class="subject-row">
+            <input type="text" id="sub${i}" placeholder="Subject ${i} Name">
+            <input type="number" id="score${i}" placeholder="Score">
+          </div>
+        `;
+      }
+    }
+
+    function calculateAverage() {
+      let num = parseInt(document.getElementById("numSubjects").value);
+      if (isNaN(num) || num <= 0) {
+        document.getElementById("result").innerText = "⚠️ Please enter number of subjects first!";
+        return;
+      }
+
+      let total = 0;
+      let subjects = [];
+      let subjectsData = "";
+
+      for (let i = 1; i <= num; i++) {
+        let name = document.getElementById(`sub${i}`).value || `Subject ${i}`;
+        let score = parseFloat(document.getElementById(`score${i}`).value);
+
+        if (isNaN(score)) {
+          document.getElementById("result").innerText = `⚠️ Please enter a valid score for ${name}!`;
+          return;
         }
 
-        function calculateAverage(numSubjects) {
-            let total = 0;
-            for (let i = 1; i <= numSubjects; i++) {
-                let grade = parseFloat(document.getElementById(`grade${i}`).value);
-                if (isNaN(grade)) {
-                    alert(`Please enter a valid grade for subject ${i}.`);
-                    return;
-                }
-                total += grade;
-            }
+        total += score;
+        subjects.push({name, score});
+        subjectsData += `${name}: ${score}\n`;
+      }
 
-            let average = total / numSubjects;
-            let feedback = "";
-            let letterGrade = "";
+      let avg = total / num;
+      let grade = "";
 
-            if (average >= 70) {
-                feedback = "🌟 Amazing result!";
-                letterGrade = "A";
-            } else if (average >= 60) {
-                feedback = "👍 Good job.";
-                letterGrade = "B";
-            } else if (average >= 50) {
-                feedback = "✅ You passed.";
-                letterGrade = "C";
-            } else {
-                feedback = "📉 You need to improve.";
-                letterGrade = "D";
-            }
+      if (avg >= 70) grade = "A";
+      else if (avg >= 60) grade = "B";
+      else if (avg >= 50) grade = "C";
+      else if (avg >= 45) grade = "D";
+      else grade = "F";
 
-            document.getElementById("result").innerHTML = `Your average grade is: ${average.toFixed(2)}<br>Grade: ${letterGrade}<br>${feedback}`;
-        }
+      let finalResult = "📘 Report Card\n\n" + subjectsData + `\nAverage: ${avg.toFixed(2)}\nGrade: ${grade}`;
+      document.getElementById("result").innerText = finalResult;
 
-        // Paystack payment
-        document.getElementById("payButton").addEventListener("click", function() {
-            let handler = PaystackPop.setup({
-                key: 'pk_test_ec3a44821177591dfadfb3f06efbf6ce823d5500',
-                email: 'dyprince781@gmail.com',
-                amount: 100000, // ₦1,000 in kobo
-                currency: 'NGN',
-                ref: ''+Math.floor((Math.random() * 1000000000) + 1),
-                callback: function(response){
-                    alert('Payment successful! Ref: ' + response.reference);
-                },
-                onClose: function(){
-                    alert('Transaction was not completed.');
-                }
-            });
-            handler.openIframe();
-        });
-    </script>
-    <script src="https://js.paystack.co/v1/inline.js"></script>
+      // Save for later PDF use
+      lastSubjects = subjects;
+      lastAverage = avg;
+      lastGrade = grade;
 
+      // Save to localStorage
+      let dataToSave = {
+        numSubjects: num,
+        subjects: subjects,
+        result: finalResult,
+        average: avg,
+        grade: grade
+      };
+      localStorage.setItem("gradeData", JSON.stringify(dataToSave));
+    }
+
+    function resetAll() {
+      localStorage.removeItem("gradeData");
+      document.getElementById("numSubjects").value = "";
+      document.getElementById("subjects").innerHTML = "";
+      document.getElementById("result").innerText = "";
+      lastSubjects = [];
+      lastAverage = 0;
+      lastGrade = "";
+    }
+
+    function downloadPDF() {
+      if (!lastSubjects.length) {
+        alert("⚠️ Please calculate first before downloading!");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFont("times", "bold");
+      doc.setFontSize(20);
+      doc.text("📘 Report Card", 70, 20);
+
+      // Table data
+      let tableData = lastSubjects.map(sub => [sub.name, sub.score]);
+
+      doc.autoTable({
+        head: [["Subject", "Score"]],
+        body: tableData,
+        startY: 30,
+      });
+
+      let finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFont("times", "normal");
+      doc.setFontSize(14);
+      doc.text(`Total Subjects: ${lastSubjects.length}`, 20, finalY);
+      doc.text(`Average: ${lastAverage.toFixed(2)}`, 20, finalY + 10);
+      doc.text(`Grade: ${lastGrade}`, 20, finalY + 20);
+
+      doc.save("ReportCard.pdf");
+    }
+  </script>
 </body>
 </html>
