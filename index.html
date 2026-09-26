@@ -566,16 +566,13 @@ function generateInputs() {
           max="100"
         >
 
-       <input
-  type="number"
-  id="unit${i}"
-  placeholder="Course unit (1-20)"
-  min="1"
-  max="20"
-  step="1"
-  inputmode="numeric"
-  oninput="if (this.value > 20) this.value = 20; if (this.value < 1 && this.value !== '') this.value = 1;"
->
+        <input
+          type="number"
+          id="unit${i}"
+          placeholder="Course unit"
+          min="1"
+          max="20"
+        >
 
       </div>
 
@@ -652,16 +649,13 @@ function calculateGPA() {
     }
 
 
-  if (
-  isNaN(unit) ||
-  unit < 1 ||
-  unit > 20 ||
-  !Number.isInteger(unit)
-) {
+    if (
+      isNaN(unit) ||
+      unit <= 0
+    ) {
 
-     showMessage(
-  `Course unit for ${name} must be a whole number between 1 and 20.`
-);
+      showMessage(
+        `Please enter a valid course unit for ${name}.`
       );
 
       return;
@@ -1061,35 +1055,4 @@ function downloadPDF() {
 
 
   doc.text(
-    "Grade scale: A1=9, B2=8, B3=7, C4=6, C5=5, C6=4, D7=3, E8=2, F9=1",
-    20,
-    finalY + 10
-  );
-
-
-  doc.save(
-    "GPA-Calculator-Report.pdf"
-  );
-
-}
-
-
-/* -----------------------------
-   SECURITY / TEXT ESCAPING
------------------------------ */
-
-function escapeHTML(text) {
-
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-
-}
-
-</script>
-
-</body>
-</html>
+    "Grade scale: A1=9, B2=8, B3=7, C4=6, C5=5, C6=4, D7=3, E8=2, F9=1"
