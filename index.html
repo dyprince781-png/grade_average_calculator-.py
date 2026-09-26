@@ -566,13 +566,16 @@ function generateInputs() {
           max="100"
         >
 
-        <input
-          type="number"
-          id="unit${i}"
-          placeholder="Course unit"
-          min="1"
-          max="20"
-        >
+       <input
+  type="number"
+  id="unit${i}"
+  placeholder="Course unit (1-20)"
+  min="1"
+  max="20"
+  step="1"
+  inputmode="numeric"
+  oninput="if (this.value > 20) this.value = 20; if (this.value < 1 && this.value !== '') this.value = 1;"
+>
 
       </div>
 
@@ -649,13 +652,16 @@ function calculateGPA() {
     }
 
 
-    if (
-      isNaN(unit) ||
-      unit <= 0
-    ) {
+  if (
+  isNaN(unit) ||
+  unit < 1 ||
+  unit > 20 ||
+  !Number.isInteger(unit)
+) {
 
-      showMessage(
-        `Please enter a valid course unit for ${name}.`
+     showMessage(
+  `Course unit for ${name} must be a whole number between 1 and 20.`
+);
       );
 
       return;
