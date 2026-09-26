@@ -3,203 +3,1087 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grade Average Calculator</title>
 
-  <!-- jsPDF and AutoTable -->
+  <title>GPA Calculator</title>
+  <meta name="description" content="Calculate your GPA using scores, WAEC-style grades and course units.">
+
+  <!-- PDF Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #eef6ff, #ffffff);
+      color: #172033;
+      min-height: 100vh;
       padding: 20px;
     }
-    h1 { color: #333; }
-    input, button {
-      padding: 10px;
-      margin: 5px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
     }
-    input[type="text"], input[type="number"] {
-      width: 80%;
-      max-width: 300px;
-    }
-    button {
-      cursor: pointer;
-      background: #4CAF50;
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #0756d9, #0b82f5);
       color: white;
-      border: none;
+      padding: 28px 22px;
+      border-radius: 22px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(7, 86, 217, 0.20);
+      margin-bottom: 20px;
     }
-    button:hover { background: #45a049; }
-    #resetBtn { background: #f44336; }
-    #resetBtn:hover { background: #d32f2f; }
-    #downloadBtn { background: #2196F3; }
-    #downloadBtn:hover { background: #1976D2; }
-    .subject-row { margin: 10px 0; }
-    #subjects { margin-top: 15px; }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
+
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      opacity: 0.92;
+      font-size: 15px;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 25px rgba(20, 50, 90, 0.08);
+      border: 1px solid #e7edf6;
+    }
+
+    .card h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* INPUT */
+    .setup {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #d6dfeb;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s;
+      background: #fbfdff;
+    }
+
+    input:focus {
+      border-color: #0878ee;
+      box-shadow: 0 0 0 3px rgba(8, 120, 238, 0.10);
+    }
+
+    #numSubjects {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    /* BUTTONS */
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-size: 15px;
       font-weight: bold;
-      white-space: pre-line;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: #0878ee;
+      color: white;
+    }
+
+    .primary:hover {
+      background: #0568d2;
+    }
+
+    .success {
+      background: #0a9f61;
+      color: white;
+    }
+
+    .danger {
+      background: #e53935;
+      color: white;
+    }
+
+    .download {
+      background: #6c4de6;
+      color: white;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    /* SUBJECT ROW */
+    .subject-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 14px;
+      background: #f7faff;
+      border: 1px solid #e5edf8;
+      border-radius: 14px;
+    }
+
+    .subject-number {
+      grid-column: 1 / -1;
+      font-weight: bold;
+      color: #0756d9;
+      font-size: 14px;
+    }
+
+    /* RESULT */
+    #result {
+      display: none;
+    }
+
+    .gpa-box {
+      text-align: center;
+      padding: 25px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #0756d9, #0b82f5);
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .gpa-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .gpa-value {
+      font-size: 50px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .summary-box {
+      background: #f5f8fc;
+      border-radius: 14px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .summary-box strong {
+      display: block;
+      font-size: 20px;
+      color: #0756d9;
+      margin-bottom: 4px;
+    }
+
+    .summary-box span {
+      font-size: 12px;
+      color: #667085;
+    }
+
+    /* TABLE */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e5eaf1;
       text-align: left;
-      display: inline-block;
+    }
+
+    th {
+      background: #f3f7fc;
+      color: #344054;
+    }
+
+    .grade {
+      font-weight: bold;
+      color: #0756d9;
+    }
+
+    /* INFO */
+    .info {
+      background: #eef6ff;
+      border-left: 4px solid #0878ee;
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .error {
+      background: #fff1f1;
+      color: #c62828;
+      border: 1px solid #ffcaca;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #667085;
+      font-size: 13px;
+    }
+
+    /* MOBILE */
+    @media (max-width: 650px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 24px 16px;
+      }
+
+      .header h1 {
+        font-size: 27px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .subject-row {
+        grid-template-columns: 1fr;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row button {
+        width: 100%;
+      }
+
+      .gpa-value {
+        font-size: 44px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <h1>Grade Average Calculator</h1>
 
-  <input type="number" id="numSubjects" placeholder="Enter number of subjects">
-  <br>
-  <button onclick="generateInputs()">Generate Inputs</button>
+<div class="app">
 
-  <div id="subjects"></div>
-  <button onclick="calculateAverage()">Calculate Average</button>
-  <button id="resetBtn" onclick="resetAll()">Reset</button>
-  <button id="downloadBtn" onclick="downloadPDF()">Download PDF Report</button>
+  <header class="header">
+    <h1>📊 GPA Calculator</h1>
+    <p>Calculate your GPA using scores, grades and course units.</p>
+  </header>
 
-  <div id="result"></div>
+  <section class="card">
 
-  <script>
-    let lastSubjects = [];
-    let lastAverage = 0;
-    let lastGrade = "";
+    <h2>📚 Start Calculation</h2>
 
-    // Restore saved data when page loads
-    window.onload = function() {
-      let savedData = JSON.parse(localStorage.getItem("gradeData"));
-      if (savedData) {
-        document.getElementById("numSubjects").value = savedData.numSubjects;
-        generateInputs();
-        for (let i = 1; i <= savedData.numSubjects; i++) {
-          document.getElementById(`sub${i}`).value = savedData.subjects[i-1].name;
-          document.getElementById(`score${i}`).value = savedData.subjects[i-1].score;
-        }
-        document.getElementById("result").innerText = savedData.result;
-        lastSubjects = savedData.subjects;
-        lastAverage = savedData.average;
-        lastGrade = savedData.grade;
-      }
+    <div class="setup">
+      <input
+        type="number"
+        id="numSubjects"
+        min="1"
+        max="50"
+        placeholder="Number of courses"
+      >
+
+      <button class="primary" onclick="generateInputs()">
+        Generate Courses
+      </button>
+    </div>
+
+    <div class="info">
+      Enter each course name, your score and the course unit.
+      Scores must be between 0 and 100.
+    </div>
+
+    <div id="message" class="message error"></div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>📝 Course Details</h2>
+
+    <div id="subjects">
+      <p style="color:#667085;">
+        Enter the number of courses above to begin.
+      </p>
+    </div>
+
+    <div class="button-row">
+
+      <button class="success" onclick="calculateGPA()">
+        Calculate GPA
+      </button>
+
+      <button class="danger" onclick="resetAll()">
+        Reset
+      </button>
+
+      <button class="download" onclick="downloadPDF()">
+        Download PDF
+      </button>
+
+    </div>
+
+  </section>
+
+  <section class="card" id="result">
+
+    <h2>📈 Your Result</h2>
+
+    <div class="gpa-box">
+      <div class="gpa-label">YOUR GPA</div>
+      <div class="gpa-value" id="gpaValue">0.00</div>
+    </div>
+
+    <div class="summary">
+
+      <div class="summary-box">
+        <strong id="totalCourses">0</strong>
+        <span>Total Courses</span>
+      </div>
+
+      <div class="summary-box">
+        <strong id="totalUnits">0</strong>
+        <span>Total Units</span>
+      </div>
+
+      <div class="summary-box">
+        <strong id="totalPoints">0</strong>
+        <span>Grade Points</span>
+      </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Score</th>
+            <th>Grade</th>
+            <th>Point</th>
+            <th>Unit</th>
+          </tr>
+        </thead>
+
+        <tbody id="resultTable"></tbody>
+
+      </table>
+
+    </div>
+
+    <div class="info">
+      <strong>Grade scale:</strong><br>
+      A1 = 9 &nbsp; | &nbsp;
+      B2 = 8 &nbsp; | &nbsp;
+      B3 = 7 &nbsp; | &nbsp;
+      C4 = 6 &nbsp; | &nbsp;
+      C5 = 5 &nbsp; | &nbsp;
+      C6 = 4 &nbsp; | &nbsp;
+      D7 = 3 &nbsp; | &nbsp;
+      E8 = 2 &nbsp; | &nbsp;
+      F9 = 1
+    </div>
+
+  </section>
+
+  <footer>
+    © 2026 GPA Calculator • Built for students
+  </footer>
+
+</div>
+
+
+<script>
+
+let lastCourses = [];
+let lastGPA = 0;
+let lastTotalUnits = 0;
+let lastTotalPoints = 0;
+
+
+/* -----------------------------
+   GRADE SYSTEM
+----------------------------- */
+
+function getGrade(score) {
+
+  if (score >= 75) {
+    return { grade: "A1", point: 9 };
+  }
+
+  if (score >= 70) {
+    return { grade: "B2", point: 8 };
+  }
+
+  if (score >= 65) {
+    return { grade: "B3", point: 7 };
+  }
+
+  if (score >= 60) {
+    return { grade: "C4", point: 6 };
+  }
+
+  if (score >= 55) {
+    return { grade: "C5", point: 5 };
+  }
+
+  if (score >= 50) {
+    return { grade: "C6", point: 4 };
+  }
+
+  if (score >= 45) {
+    return { grade: "D7", point: 3 };
+  }
+
+  if (score >= 40) {
+    return { grade: "E8", point: 2 };
+  }
+
+  return { grade: "F9", point: 1 };
+}
+
+
+/* -----------------------------
+   MESSAGE
+----------------------------- */
+
+function showMessage(message) {
+
+  const box = document.getElementById("message");
+
+  box.innerText = message;
+  box.style.display = "block";
+
+}
+
+
+function hideMessage() {
+
+  document.getElementById("message").style.display = "none";
+
+}
+
+
+/* -----------------------------
+   GENERATE COURSE INPUTS
+----------------------------- */
+
+function generateInputs() {
+
+  hideMessage();
+
+  const num = parseInt(
+    document.getElementById("numSubjects").value
+  );
+
+  const container =
+    document.getElementById("subjects");
+
+  container.innerHTML = "";
+
+  if (isNaN(num) || num <= 0 || num > 50) {
+
+    showMessage(
+      "Please enter a valid number of courses between 1 and 50."
+    );
+
+    return;
+  }
+
+
+  for (let i = 1; i <= num; i++) {
+
+    container.innerHTML += `
+
+      <div class="subject-row">
+
+        <div class="subject-number">
+          Course ${i}
+        </div>
+
+        <input
+          type="text"
+          id="sub${i}"
+          placeholder="Course name"
+        >
+
+        <input
+          type="number"
+          id="score${i}"
+          placeholder="Score (0-100)"
+          min="0"
+          max="100"
+        >
+
+        <input
+          type="number"
+          id="unit${i}"
+          placeholder="Course unit"
+          min="1"
+          max="20"
+        >
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+/* -----------------------------
+   CALCULATE GPA
+----------------------------- */
+
+function calculateGPA() {
+
+  hideMessage();
+
+  const num =
+    parseInt(
+      document.getElementById("numSubjects").value
+    );
+
+  if (isNaN(num) || num <= 0) {
+
+    showMessage(
+      "Please enter the number of courses first."
+    );
+
+    return;
+  }
+
+
+  let totalUnits = 0;
+  let totalPoints = 0;
+
+  let courses = [];
+
+
+  for (let i = 1; i <= num; i++) {
+
+    const nameInput =
+      document.getElementById(`sub${i}`);
+
+    const scoreInput =
+      document.getElementById(`score${i}`);
+
+    const unitInput =
+      document.getElementById(`unit${i}`);
+
+
+    const name =
+      nameInput.value.trim() ||
+      `Course ${i}`;
+
+    const score =
+      parseFloat(scoreInput.value);
+
+    const unit =
+      parseFloat(unitInput.value);
+
+
+    if (
+      isNaN(score) ||
+      score < 0 ||
+      score > 100
+    ) {
+
+      showMessage(
+        `Please enter a valid score between 0 and 100 for ${name}.`
+      );
+
+      return;
     }
 
-    function generateInputs() {
-      let num = parseInt(document.getElementById("numSubjects").value);
-      let container = document.getElementById("subjects");
-      container.innerHTML = "";
 
-      if (isNaN(num) || num <= 0) {
-        container.innerHTML = "<p>⚠️ Please enter a valid number of subjects!</p>";
-        return;
-      }
+    if (
+      isNaN(unit) ||
+      unit <= 0
+    ) {
 
-      for (let i = 1; i <= num; i++) {
-        container.innerHTML += `
-          <div class="subject-row">
-            <input type="text" id="sub${i}" placeholder="Subject ${i} Name">
-            <input type="number" id="score${i}" placeholder="Score">
-          </div>
-        `;
-      }
+      showMessage(
+        `Please enter a valid course unit for ${name}.`
+      );
+
+      return;
     }
 
-    function calculateAverage() {
-      let num = parseInt(document.getElementById("numSubjects").value);
-      if (isNaN(num) || num <= 0) {
-        document.getElementById("result").innerText = "⚠️ Please enter number of subjects first!";
-        return;
-      }
 
-      let total = 0;
-      let subjects = [];
-      let subjectsData = "";
+    const result =
+      getGrade(score);
 
-      for (let i = 1; i <= num; i++) {
-        let name = document.getElementById(`sub${i}`).value || `Subject ${i}`;
-        let score = parseFloat(document.getElementById(`score${i}`).value);
 
-        if (isNaN(score)) {
-          document.getElementById("result").innerText = `⚠️ Please enter a valid score for ${name}!`;
-          return;
-        }
+    const weightedPoint =
+      result.point * unit;
 
-        total += score;
-        subjects.push({name, score});
-        subjectsData += `${name}: ${score}\n`;
-      }
 
-      let avg = total / num;
-      let grade = "";
+    totalUnits += unit;
+    totalPoints += weightedPoint;
 
-      if (avg >= 70) grade = "A";
-      else if (avg >= 60) grade = "B";
-      else if (avg >= 50) grade = "C";
-      else if (avg >= 45) grade = "D";
-      else grade = "F";
 
-      let finalResult = "📘 Report Card\n\n" + subjectsData + `\nAverage: ${avg.toFixed(2)}\nGrade: ${grade}`;
-      document.getElementById("result").innerText = finalResult;
+    courses.push({
 
-      // Save for later PDF use
-      lastSubjects = subjects;
-      lastAverage = avg;
-      lastGrade = grade;
+      name: name,
+      score: score,
+      grade: result.grade,
+      point: result.point,
+      unit: unit
 
-      // Save to localStorage
-      let dataToSave = {
-        numSubjects: num,
-        subjects: subjects,
-        result: finalResult,
-        average: avg,
-        grade: grade
-      };
-      localStorage.setItem("gradeData", JSON.stringify(dataToSave));
+    });
+
+  }
+
+
+  const gpa =
+    totalPoints / totalUnits;
+
+
+  lastCourses = courses;
+  lastGPA = gpa;
+  lastTotalUnits = totalUnits;
+  lastTotalPoints = totalPoints;
+
+
+  displayResult(
+    courses,
+    gpa,
+    totalUnits,
+    totalPoints
+  );
+
+
+  saveData(
+    courses,
+    gpa,
+    totalUnits,
+    totalPoints
+  );
+
+}
+
+
+/* -----------------------------
+   DISPLAY RESULT
+----------------------------- */
+
+function displayResult(
+  courses,
+  gpa,
+  totalUnits,
+  totalPoints
+) {
+
+  document.getElementById("result")
+    .style.display = "block";
+
+
+  document.getElementById("gpaValue")
+    .innerText =
+    gpa.toFixed(2);
+
+
+  document.getElementById("totalCourses")
+    .innerText =
+    courses.length;
+
+
+  document.getElementById("totalUnits")
+    .innerText =
+    totalUnits;
+
+
+  document.getElementById("totalPoints")
+    .innerText =
+    totalPoints;
+
+
+  const table =
+    document.getElementById("resultTable");
+
+
+  table.innerHTML = "";
+
+
+  courses.forEach(course => {
+
+    table.innerHTML += `
+
+      <tr>
+
+        <td>${escapeHTML(course.name)}</td>
+
+        <td>${course.score}</td>
+
+        <td class="grade">
+          ${course.grade}
+        </td>
+
+        <td>${course.point}</td>
+
+        <td>${course.unit}</td>
+
+      </tr>
+
+    `;
+
+  });
+
+}
+
+
+/* -----------------------------
+   SAVE DATA
+----------------------------- */
+
+function saveData(
+  courses,
+  gpa,
+  totalUnits,
+  totalPoints
+) {
+
+  const data = {
+
+    numCourses: courses.length,
+
+    courses: courses,
+
+    gpa: gpa,
+
+    totalUnits: totalUnits,
+
+    totalPoints: totalPoints
+
+  };
+
+
+  localStorage.setItem(
+    "gpaCalculatorData",
+    JSON.stringify(data)
+  );
+
+}
+
+
+/* -----------------------------
+   RESTORE DATA
+----------------------------- */
+
+window.onload = function() {
+
+  const saved =
+    JSON.parse(
+      localStorage.getItem(
+        "gpaCalculatorData"
+      )
+    );
+
+
+  if (!saved) {
+    return;
+  }
+
+
+  document.getElementById(
+    "numSubjects"
+  ).value =
+    saved.numCourses;
+
+
+  generateInputs();
+
+
+  saved.courses.forEach(
+    (course, index) => {
+
+      const i = index + 1;
+
+      document.getElementById(
+        `sub${i}`
+      ).value =
+        course.name;
+
+      document.getElementById(
+        `score${i}`
+      ).value =
+        course.score;
+
+      document.getElementById(
+        `unit${i}`
+      ).value =
+        course.unit;
+
     }
+  );
 
-    function resetAll() {
-      localStorage.removeItem("gradeData");
-      document.getElementById("numSubjects").value = "";
-      document.getElementById("subjects").innerHTML = "";
-      document.getElementById("result").innerText = "";
-      lastSubjects = [];
-      lastAverage = 0;
-      lastGrade = "";
+
+  lastCourses =
+    saved.courses;
+
+  lastGPA =
+    saved.gpa;
+
+  lastTotalUnits =
+    saved.totalUnits;
+
+  lastTotalPoints =
+    saved.totalPoints;
+
+
+  displayResult(
+    saved.courses,
+    saved.gpa,
+    saved.totalUnits,
+    saved.totalPoints
+  );
+
+};
+
+
+/* -----------------------------
+   RESET
+----------------------------- */
+
+function resetAll() {
+
+  const confirmed =
+    confirm(
+      "Are you sure you want to clear your GPA calculation?"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  localStorage.removeItem(
+    "gpaCalculatorData"
+  );
+
+
+  document.getElementById(
+    "numSubjects"
+  ).value = "";
+
+
+  document.getElementById(
+    "subjects"
+  ).innerHTML =
+    `<p style="color:#667085;">
+      Enter the number of courses above to begin.
+    </p>`;
+
+
+  document.getElementById(
+    "result"
+  ).style.display =
+    "none";
+
+
+  lastCourses = [];
+  lastGPA = 0;
+  lastTotalUnits = 0;
+  lastTotalPoints = 0;
+
+}
+
+
+/* -----------------------------
+   DOWNLOAD PDF
+----------------------------- */
+
+function downloadPDF() {
+
+  if (!lastCourses.length) {
+
+    alert(
+      "Please calculate your GPA first."
+    );
+
+    return;
+  }
+
+
+  const { jsPDF } =
+    window.jspdf;
+
+
+  const doc =
+    new jsPDF();
+
+
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
+
+  doc.setFontSize(20);
+
+  doc.text(
+    "GPA Calculator Report",
+    105,
+    20,
+    {
+      align: "center"
     }
+  );
 
-    function downloadPDF() {
-      if (!lastSubjects.length) {
-        alert("⚠️ Please calculate first before downloading!");
-        return;
-      }
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+  doc.setFontSize(12);
 
-      doc.setFont("times", "bold");
-      doc.setFontSize(20);
-      doc.text("📘 Report Card", 70, 20);
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
 
-      // Table data
-      let tableData = lastSubjects.map(sub => [sub.name, sub.score]);
 
-      doc.autoTable({
-        head: [["Subject", "Score"]],
-        body: tableData,
-        startY: 30,
-      });
+  doc.text(
+    `GPA: ${lastGPA.toFixed(2)}`,
+    20,
+    32
+  );
 
-      let finalY = doc.lastAutoTable.finalY + 10;
-      doc.setFont("times", "normal");
-      doc.setFontSize(14);
-      doc.text(`Total Subjects: ${lastSubjects.length}`, 20, finalY);
-      doc.text(`Average: ${lastAverage.toFixed(2)}`, 20, finalY + 10);
-      doc.text(`Grade: ${lastGrade}`, 20, finalY + 20);
 
-      doc.save("ReportCard.pdf");
-    }
-  </script>
+  doc.text(
+    `Total Units: ${lastTotalUnits}`,
+    20,
+    40
+  );
+
+
+  doc.autoTable({
+
+    head: [[
+      "Course",
+      "Score",
+      "Grade",
+      "Point",
+      "Unit"
+    ]],
+
+    body:
+      lastCourses.map(course => [
+
+        course.name,
+        course.score,
+        course.grade,
+        course.point,
+        course.unit
+
+      ]),
+
+    startY: 48
+
+  });
+
+
+  const finalY =
+    doc.lastAutoTable.finalY + 15;
+
+
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
+
+
+  doc.text(
+    `GPA: ${lastGPA.toFixed(2)}`,
+    20,
+    finalY
+  );
+
+
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
+
+
+  doc.text(
+    "Grade scale: A1=9, B2=8, B3=7, C4=6, C5=5, C6=4, D7=3, E8=2, F9=1",
+    20,
+    finalY + 10
+  );
+
+
+  doc.save(
+    "GPA-Calculator-Report.pdf"
+  );
+
+}
+
+
+/* -----------------------------
+   SECURITY / TEXT ESCAPING
+----------------------------- */
+
+function escapeHTML(text) {
+
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+</script>
+
 </body>
 </html>
