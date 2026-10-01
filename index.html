@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>GPA Calculator</title>
-  <meta name="description" content="Calculate your GPA using scores, WAEC-style grades and course units.">
+  <meta name="description" content="Calculate GPA using scores, grades and course units.">
 
   <!-- PDF Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -32,11 +32,10 @@
       margin: auto;
     }
 
-    /* HEADER */
     .header {
       background: linear-gradient(135deg, #0756d9, #0b82f5);
       color: white;
-      padding: 28px 22px;
+      padding: 30px 20px;
       border-radius: 22px;
       text-align: center;
       box-shadow: 0 12px 30px rgba(7, 86, 217, 0.20);
@@ -49,11 +48,10 @@
     }
 
     .header p {
-      opacity: 0.92;
       font-size: 15px;
+      opacity: 0.95;
     }
 
-    /* CARD */
     .card {
       background: white;
       border-radius: 20px;
@@ -68,7 +66,6 @@
       margin-bottom: 16px;
     }
 
-    /* INPUT */
     .setup {
       display: flex;
       gap: 10px;
@@ -82,7 +79,6 @@
       border-radius: 12px;
       font-size: 15px;
       outline: none;
-      transition: 0.2s;
       background: #fbfdff;
     }
 
@@ -91,12 +87,11 @@
       box-shadow: 0 0 0 3px rgba(8, 120, 238, 0.10);
     }
 
-    #numSubjects {
+    #numCourses {
       flex: 1;
       min-width: 180px;
     }
 
-    /* BUTTONS */
     button {
       border: none;
       border-radius: 12px;
@@ -114,10 +109,6 @@
     .primary {
       background: #0878ee;
       color: white;
-    }
-
-    .primary:hover {
-      background: #0568d2;
     }
 
     .success {
@@ -142,8 +133,7 @@
       margin-top: 18px;
     }
 
-    /* SUBJECT ROW */
-    .subject-row {
+    .course-row {
       display: grid;
       grid-template-columns: 1.5fr 1fr 1fr;
       gap: 10px;
@@ -154,14 +144,13 @@
       border-radius: 14px;
     }
 
-    .subject-number {
+    .course-number {
       grid-column: 1 / -1;
       font-weight: bold;
       color: #0756d9;
       font-size: 14px;
     }
 
-    /* RESULT */
     #result {
       display: none;
     }
@@ -212,7 +201,6 @@
       color: #667085;
     }
 
-    /* TABLE */
     .table-wrapper {
       overflow-x: auto;
     }
@@ -240,7 +228,6 @@
       color: #0756d9;
     }
 
-    /* INFO */
     .info {
       background: #eef6ff;
       border-left: 4px solid #0878ee;
@@ -265,7 +252,6 @@
       border: 1px solid #ffcaca;
     }
 
-    /* FOOTER */
     footer {
       text-align: center;
       padding: 20px;
@@ -273,14 +259,14 @@
       font-size: 13px;
     }
 
-    /* MOBILE */
     @media (max-width: 650px) {
+
       body {
         padding: 10px;
       }
 
       .header {
-        padding: 24px 16px;
+        padding: 25px 16px;
       }
 
       .header h1 {
@@ -291,7 +277,7 @@
         padding: 16px;
       }
 
-      .subject-row {
+      .course-row {
         grid-template-columns: 1fr;
       }
 
@@ -300,6 +286,10 @@
       }
 
       .button-row button {
+        width: 100%;
+      }
+
+      .setup button {
         width: 100%;
       }
 
@@ -314,59 +304,89 @@
 
 <div class="app">
 
+  <!-- HEADER -->
   <header class="header">
-    <h1>📊 GPA Calculator</h1>
+    <h1>GPA Calculator</h1>
     <p>Calculate your GPA using scores, grades and course units.</p>
   </header>
 
+
+  <!-- START -->
   <section class="card">
 
-    <h2>📚 Start Calculation</h2>
+    <h2>Start Calculation</h2>
 
     <div class="setup">
+
       <input
         type="number"
-        id="numSubjects"
+        id="numCourses"
         min="1"
         max="50"
+        step="1"
+        inputmode="numeric"
         placeholder="Number of courses"
       >
 
-      <button class="primary" onclick="generateInputs()">
+      <button
+        type="button"
+        id="generateBtn"
+        class="primary"
+      >
         Generate Courses
       </button>
+
     </div>
 
     <div class="info">
-      Enter each course name, your score and the course unit.
+      Enter each course name, score and course unit.
+      <br>
       Scores must be between 0 and 100.
+      <br>
+      Course units must be whole numbers from 1 to 20.
     </div>
 
     <div id="message" class="message error"></div>
 
   </section>
 
+
+  <!-- COURSE DETAILS -->
   <section class="card">
 
-    <h2>📝 Course Details</h2>
+    <h2>Course Details</h2>
 
-    <div id="subjects">
+    <div id="courses">
+
       <p style="color:#667085;">
         Enter the number of courses above to begin.
       </p>
+
     </div>
 
     <div class="button-row">
 
-      <button class="success" onclick="calculateGPA()">
+      <button
+        type="button"
+        id="calculateBtn"
+        class="success"
+      >
         Calculate GPA
       </button>
 
-      <button class="danger" onclick="resetAll()">
+      <button
+        type="button"
+        id="resetBtn"
+        class="danger"
+      >
         Reset
       </button>
 
-      <button class="download" onclick="downloadPDF()">
+      <button
+        type="button"
+        id="downloadBtn"
+        class="download"
+      >
         Download PDF
       </button>
 
@@ -374,14 +394,27 @@
 
   </section>
 
+
+  <!-- RESULT -->
   <section class="card" id="result">
 
-    <h2>📈 Your Result</h2>
+    <h2>Your Result</h2>
 
     <div class="gpa-box">
-      <div class="gpa-label">YOUR GPA</div>
-      <div class="gpa-value" id="gpaValue">0.00</div>
+
+      <div class="gpa-label">
+        YOUR GPA
+      </div>
+
+      <div
+        class="gpa-value"
+        id="gpaValue"
+      >
+        0.00
+      </div>
+
     </div>
+
 
     <div class="summary">
 
@@ -397,16 +430,18 @@
 
       <div class="summary-box">
         <strong id="totalPoints">0</strong>
-        <span>Grade Points</span>
+        <span>Total Grade Points</span>
       </div>
 
     </div>
+
 
     <div class="table-wrapper">
 
       <table>
 
         <thead>
+
           <tr>
             <th>Course</th>
             <th>Score</th>
@@ -414,6 +449,7 @@
             <th>Point</th>
             <th>Unit</th>
           </tr>
+
         </thead>
 
         <tbody id="resultTable"></tbody>
@@ -422,20 +458,26 @@
 
     </div>
 
+
     <div class="info">
-      <strong>Grade scale:</strong><br>
-      A1 = 9 &nbsp; | &nbsp;
-      B2 = 8 &nbsp; | &nbsp;
-      B3 = 7 &nbsp; | &nbsp;
-      C4 = 6 &nbsp; | &nbsp;
-      C5 = 5 &nbsp; | &nbsp;
-      C6 = 4 &nbsp; | &nbsp;
-      D7 = 3 &nbsp; | &nbsp;
-      E8 = 2 &nbsp; | &nbsp;
+
+      <strong>Grade Scale</strong>
+      <br>
+
+      A1 = 9 |
+      B2 = 8 |
+      B3 = 7 |
+      C4 = 6 |
+      C5 = 5 |
+      C6 = 4 |
+      D7 = 3 |
+      E8 = 2 |
       F9 = 1
+
     </div>
 
   </section>
+
 
   <footer>
     © 2026 GPA Calculator • Built for students
@@ -446,66 +488,99 @@
 
 <script>
 
-alert("GPA Calculator JavaScript is working!");
+"use strict";
 
-let lastCourses = [];
+
+/* =========================================
+   VARIABLES
+========================================= */
+
 let lastCourses = [];
 let lastGPA = 0;
 let lastTotalUnits = 0;
 let lastTotalPoints = 0;
 
 
-/* -----------------------------
-   GRADE SYSTEM
------------------------------ */
+/* =========================================
+   GET GRADE
+========================================= */
 
 function getGrade(score) {
 
   if (score >= 75) {
-    return { grade: "A1", point: 9 };
+    return {
+      grade: "A1",
+      point: 9
+    };
   }
 
   if (score >= 70) {
-    return { grade: "B2", point: 8 };
+    return {
+      grade: "B2",
+      point: 8
+    };
   }
 
   if (score >= 65) {
-    return { grade: "B3", point: 7 };
+    return {
+      grade: "B3",
+      point: 7
+    };
   }
 
   if (score >= 60) {
-    return { grade: "C4", point: 6 };
+    return {
+      grade: "C4",
+      point: 6
+    };
   }
 
   if (score >= 55) {
-    return { grade: "C5", point: 5 };
+    return {
+      grade: "C5",
+      point: 5
+    };
   }
 
   if (score >= 50) {
-    return { grade: "C6", point: 4 };
+    return {
+      grade: "C6",
+      point: 4
+    };
   }
 
   if (score >= 45) {
-    return { grade: "D7", point: 3 };
+    return {
+      grade: "D7",
+      point: 3
+    };
   }
 
   if (score >= 40) {
-    return { grade: "E8", point: 2 };
+    return {
+      grade: "E8",
+      point: 2
+    };
   }
 
-  return { grade: "F9", point: 1 };
+  return {
+    grade: "F9",
+    point: 1
+  };
+
 }
 
 
-/* -----------------------------
+/* =========================================
    MESSAGE
------------------------------ */
+========================================= */
 
 function showMessage(message) {
 
   const box = document.getElementById("message");
 
-  box.innerText = message;
+  box.textContent = message;
+
   box.style.display = "block";
 
 }
@@ -513,98 +588,223 @@ function showMessage(message) {
 
 function hideMessage() {
 
-  document.getElementById("message").style.display = "none";
+  const box = document.getElementById("message");
+
+  box.style.display = "none";
+
+  box.textContent = "";
 
 }
 
 
-/* -----------------------------
-   GENERATE COURSE INPUTS
------------------------------ */
+/* =========================================
+   LIMIT NUMBER INPUT
+========================================= */
 
-function generateInputs() {
+function limitNumberInput(input, min, max) {
+
+  input.addEventListener("input", function () {
+
+    if (this.value === "") {
+      return;
+    }
+
+    let value = Number(this.value);
+
+    if (value > max) {
+      this.value = max;
+    }
+
+    if (value < min) {
+      this.value = min;
+    }
+
+  });
+
+}
+
+
+/* =========================================
+   GENERATE COURSES
+========================================= */
+
+function generateCourses() {
 
   hideMessage();
 
-  const num = parseInt(
-    document.getElementById("numSubjects").value
-  );
+  const input =
+    document.getElementById("numCourses");
 
-  const container =
-    document.getElementById("subjects");
+  let num =
+    Number(input.value);
 
-  container.innerHTML = "";
 
-  if (isNaN(num) || num <= 0 || num > 50) {
+  if (
+    !Number.isInteger(num) ||
+    num < 1 ||
+    num > 50
+  ) {
 
     showMessage(
-      "Please enter a valid number of courses between 1 and 50."
+      "Please enter a whole number of courses between 1 and 50."
     );
 
     return;
   }
 
 
-  for (let i = 1; i <= num; i++) {
+  const container =
+    document.getElementById("courses");
 
-    container.innerHTML += `
+  container.innerHTML = "";
 
-      <div class="subject-row">
 
-        <div class="subject-number">
-          Course ${i}
-        </div>
+  for (
+    let i = 1;
+    i <= num;
+    i++
+  ) {
 
-        <input
-          type="text"
-          id="sub${i}"
-          placeholder="Course name"
-        >
+    const row =
+      document.createElement("div");
 
-        <input
-          type="number"
-          id="score${i}"
-          placeholder="Score (0-100)"
-          min="0"
-          max="100"
-        >
+    row.className = "course-row";
 
-       <input
-  type="number"
-  id="unit${i}"
-  placeholder="Course unit (1-20)"
-  min="1"
-  max="20"
-  step="1"
-  inputmode="numeric"
-  oninput="if (this.value > 20) this.value = 20; if (this.value < 1 && this.value !== '') this.value = 1;"
->
-      </div>
 
-    `;
+    const number =
+      document.createElement("div");
+
+    number.className =
+      "course-number";
+
+    number.textContent =
+      "Course " + i;
+
+
+    const name =
+      document.createElement("input");
+
+    name.type = "text";
+
+    name.id =
+      "courseName" + i;
+
+    name.placeholder =
+      "Course name";
+
+
+    const score =
+      document.createElement("input");
+
+    score.type = "number";
+
+    score.id =
+      "score" + i;
+
+    score.placeholder =
+      "Score (0-100)";
+
+    score.min = "0";
+
+    score.max = "100";
+
+    score.step = "1";
+
+    score.inputMode = "numeric";
+
+
+    const unit =
+      document.createElement("input");
+
+    unit.type = "number";
+
+    unit.id =
+      "unit" + i;
+
+    unit.placeholder =
+      "Course unit (1-20)";
+
+    unit.min = "1";
+
+    unit.max = "20";
+
+    unit.step = "1";
+
+    unit.inputMode = "numeric";
+
+
+    /* STRICT 1-20 UNIT LIMIT */
+
+    unit.addEventListener(
+      "input",
+      function () {
+
+        if (this.value === "") {
+          return;
+        }
+
+        let value =
+          Number(this.value);
+
+
+        if (value > 20) {
+          this.value = "20";
+        }
+
+
+        if (value < 1) {
+          this.value = "1";
+        }
+
+
+        if (!Number.isInteger(value)) {
+
+          this.value =
+            Math.floor(value);
+
+        }
+
+      }
+    );
+
+
+    row.appendChild(number);
+
+    row.appendChild(name);
+
+    row.appendChild(score);
+
+    row.appendChild(unit);
+
+    container.appendChild(row);
 
   }
 
 }
 
 
-/* -----------------------------
+/* =========================================
    CALCULATE GPA
------------------------------ */
+========================================= */
 
 function calculateGPA() {
 
   hideMessage();
 
   const num =
-    parseInt(
-      document.getElementById("numSubjects").value
+    Number(
+      document.getElementById("numCourses").value
     );
 
-  if (isNaN(num) || num <= 0) {
+
+  if (
+    !Number.isInteger(num) ||
+    num < 1 ||
+    num > 50
+  ) {
 
     showMessage(
-      "Please enter the number of courses first."
+      "Please generate your courses first."
     );
 
     return;
@@ -612,57 +812,96 @@ function calculateGPA() {
 
 
   let totalUnits = 0;
+
   let totalPoints = 0;
 
   let courses = [];
 
 
-  for (let i = 1; i <= num; i++) {
+  for (
+    let i = 1;
+    i <= num;
+    i++
+  ) {
 
     const nameInput =
-      document.getElementById(`sub${i}`);
+      document.getElementById(
+        "courseName" + i
+      );
 
     const scoreInput =
-      document.getElementById(`score${i}`);
+      document.getElementById(
+        "score" + i
+      );
 
     const unitInput =
-      document.getElementById(`unit${i}`);
-
-
-    const name =
-      nameInput.value.trim() ||
-      `Course ${i}`;
-
-    const score =
-      parseFloat(scoreInput.value);
-
-    const unit =
-      parseFloat(unitInput.value);
+      document.getElementById(
+        "unit" + i
+      );
 
 
     if (
-      isNaN(score) ||
-      score < 0 ||
-      score > 100
+      !nameInput ||
+      !scoreInput ||
+      !unitInput
     ) {
 
       showMessage(
-        `Please enter a valid score between 0 and 100 for ${name}.`
+        "Please generate the course fields before calculating."
       );
 
       return;
     }
 
 
-  if (
-  isNaN(unit) ||
-  unit < 1 ||
-  unit > 20 ||
-  !Number.isInteger(unit)
-) {
-showMessage(
-  `Course unit for ${name} must be a whole number between 1 and 20.`
-);
+    const name =
+      nameInput.value.trim() ||
+      "Course " + i;
+
+
+    const score =
+      Number(scoreInput.value);
+
+
+    const unit =
+      Number(unitInput.value);
+
+
+    /* SCORE VALIDATION */
+
+    if (
+      !Number.isFinite(score) ||
+      score < 0 ||
+      score > 100
+    ) {
+
+      showMessage(
+        "Please enter a valid score between 0 and 100 for " +
+        name + "."
+      );
+
+      scoreInput.focus();
+
+      return;
+    }
+
+
+    /* STRICT COURSE UNIT VALIDATION */
+
+    if (
+      !Number.isInteger(unit) ||
+      unit < 1 ||
+      unit > 20
+    ) {
+
+      showMessage(
+        "Course unit for " +
+        name +
+        " must be a whole number between 1 and 20."
+      );
+
+      unitInput.focus();
+
       return;
     }
 
@@ -676,15 +915,20 @@ showMessage(
 
 
     totalUnits += unit;
+
     totalPoints += weightedPoint;
 
 
     courses.push({
 
       name: name,
+
       score: score,
+
       grade: result.grade,
+
       point: result.point,
+
       unit: unit
 
     });
@@ -692,14 +936,31 @@ showMessage(
   }
 
 
+  if (totalUnits <= 0) {
+
+    showMessage(
+      "Total course units must be greater than zero."
+    );
+
+    return;
+  }
+
+
   const gpa =
     totalPoints / totalUnits;
 
 
-  lastCourses = courses;
-  lastGPA = gpa;
-  lastTotalUnits = totalUnits;
-  lastTotalPoints = totalPoints;
+  lastCourses =
+    courses;
+
+  lastGPA =
+    gpa;
+
+  lastTotalUnits =
+    totalUnits;
+
+  lastTotalPoints =
+    totalPoints;
 
 
   displayResult(
@@ -720,9 +981,9 @@ showMessage(
 }
 
 
-/* -----------------------------
+/* =========================================
    DISPLAY RESULT
------------------------------ */
+========================================= */
 
 function displayResult(
   courses,
@@ -731,333 +992,106 @@ function displayResult(
   totalPoints
 ) {
 
-  document.getElementById("result")
-    .style.display = "block";
+  const resultBox =
+    document.getElementById("result");
+
+  resultBox.style.display =
+    "block";
 
 
-  document.getElementById("gpaValue")
-    .innerText =
+  document.getElementById(
+    "gpaValue"
+  ).textContent =
     gpa.toFixed(2);
 
 
-  document.getElementById("totalCourses")
-    .innerText =
+  document.getElementById(
+    "totalCourses"
+  ).textContent =
     courses.length;
 
 
-  document.getElementById("totalUnits")
-    .innerText =
+  document.getElementById(
+    "totalUnits"
+  ).textContent =
     totalUnits;
 
 
-  document.getElementById("totalPoints")
-    .innerText =
+  document.getElementById(
+    "totalPoints"
+  ).textContent =
     totalPoints;
 
 
   const table =
-    document.getElementById("resultTable");
+    document.getElementById(
+      "resultTable"
+    );
 
 
   table.innerHTML = "";
 
 
-  courses.forEach(course => {
+  courses.forEach(function(course) {
 
-    table.innerHTML += `
+    const row =
+      document.createElement("tr");
 
-      <tr>
 
-        <td>${escapeHTML(course.name)}</td>
+    const courseCell =
+      document.createElement("td");
 
-        <td>${course.score}</td>
+    courseCell.textContent =
+      course.name;
 
-        <td class="grade">
-          ${course.grade}
-        </td>
 
-        <td>${course.point}</td>
+    const scoreCell =
+      document.createElement("td");
 
-        <td>${course.unit}</td>
+    scoreCell.textContent =
+      course.score;
 
-      </tr>
 
-    `;
+    const gradeCell =
+      document.createElement("td");
 
-  });
+    gradeCell.textContent =
+      course.grade;
 
-}
+    gradeCell.className =
+      "grade";
 
 
-/* -----------------------------
-   SAVE DATA
------------------------------ */
+    const pointCell =
+      document.createElement("td");
 
-function saveData(
-  courses,
-  gpa,
-  totalUnits,
-  totalPoints
-) {
+    pointCell.textContent =
+      course.point;
 
-  const data = {
 
-    numCourses: courses.length,
+    const unitCell =
+      document.createElement("td");
 
-    courses: courses,
+    unitCell.textContent =
+      course.unit;
 
-    gpa: gpa,
 
-    totalUnits: totalUnits,
+    row.appendChild(courseCell);
 
-    totalPoints: totalPoints
+    row.appendChild(scoreCell);
 
-  };
+    row.appendChild(gradeCell);
 
+    row.appendChild(pointCell);
 
-  localStorage.setItem(
-    "gpaCalculatorData",
-    JSON.stringify(data)
-  );
+    row.appendChild(unitCell);
 
-}
 
-
-/* -----------------------------
-   RESTORE DATA
------------------------------ */
-
-window.onload = function() {
-
-  const saved =
-    JSON.parse(
-      localStorage.getItem(
-        "gpaCalculatorData"
-      )
-    );
-
-
-  if (!saved) {
-    return;
-  }
-
-
-  document.getElementById(
-    "numSubjects"
-  ).value =
-    saved.numCourses;
-
-
-  generateInputs();
-
-
-  saved.courses.forEach(
-    (course, index) => {
-
-      const i = index + 1;
-
-      document.getElementById(
-        `sub${i}`
-      ).value =
-        course.name;
-
-      document.getElementById(
-        `score${i}`
-      ).value =
-        course.score;
-
-      document.getElementById(
-        `unit${i}`
-      ).value =
-        course.unit;
-
-    }
-  );
-
-
-  lastCourses =
-    saved.courses;
-
-  lastGPA =
-    saved.gpa;
-
-  lastTotalUnits =
-    saved.totalUnits;
-
-  lastTotalPoints =
-    saved.totalPoints;
-
-
-  displayResult(
-    saved.courses,
-    saved.gpa,
-    saved.totalUnits,
-    saved.totalPoints
-  );
-
-};
-
-
-/* -----------------------------
-   RESET
------------------------------ */
-
-function resetAll() {
-
-  const confirmed =
-    confirm(
-      "Are you sure you want to clear your GPA calculation?"
-    );
-
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  localStorage.removeItem(
-    "gpaCalculatorData"
-  );
-
-
-  document.getElementById(
-    "numSubjects"
-  ).value = "";
-
-
-  document.getElementById(
-    "subjects"
-  ).innerHTML =
-    `<p style="color:#667085;">
-      Enter the number of courses above to begin.
-    </p>`;
-
-
-  document.getElementById(
-    "result"
-  ).style.display =
-    "none";
-
-
-  lastCourses = [];
-  lastGPA = 0;
-  lastTotalUnits = 0;
-  lastTotalPoints = 0;
-
-}
-
-
-/* -----------------------------
-   DOWNLOAD PDF
------------------------------ */
-
-function downloadPDF() {
-
-  if (!lastCourses.length) {
-
-    alert(
-      "Please calculate your GPA first."
-    );
-
-    return;
-  }
-
-
-  const { jsPDF } =
-    window.jspdf;
-
-
-  const doc =
-    new jsPDF();
-
-
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
-
-  doc.setFontSize(20);
-
-  doc.text(
-    "GPA Calculator Report",
-    105,
-    20,
-    {
-      align: "center"
-    }
-  );
-
-
-  doc.setFontSize(12);
-
-  doc.setFont(
-    "helvetica",
-    "normal"
-  );
-
-
-  doc.text(
-    `GPA: ${lastGPA.toFixed(2)}`,
-    20,
-    32
-  );
-
-
-  doc.text(
-    `Total Units: ${lastTotalUnits}`,
-    20,
-    40
-  );
-
-
-  doc.autoTable({
-
-    head: [[
-      "Course",
-      "Score",
-      "Grade",
-      "Point",
-      "Unit"
-    ]],
-
-    body:
-      lastCourses.map(course => [
-
-        course.name,
-        course.score,
-        course.grade,
-        course.point,
-        course.unit
-
-      ]),
-
-    startY: 48
+    table.appendChild(row);
 
   });
 
 
-  const finalY =
-    doc.lastAutoTable.finalY + 15;
-
-
-  doc.setFont(
-    "helvetica",
-    "bold"
-  );
-
-
-  doc.text(
-    `GPA: ${lastGPA.toFixed(2)}`,
-    20,
-    finalY
-  );
-
-
-  doc.setFont(
-    "helvetica",
-    "normal"
-  );
-
-
-  doc.text(
-    "Grade scale: A1=9, B2=8, B3=7, C4=6, C5=5, C6=4, D7=3, E8=2, F9=1"
+  resultBox.scrollIntoView({
+    behavior: "smooth",
+    bl
